@@ -1,0 +1,16 @@
+.carrito{
+    height: auto;
+    width: auto;
+    max-height: 70px;
+    max-width: 250px;
+    text-align: right;
+}
+
+.titulo{
+    font-family: 'Satisfy', cursive;
+    font-size: xx-large;
+}
+
+.subtitulo{
+    text-align: center;
+}
