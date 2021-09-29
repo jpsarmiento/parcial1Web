@@ -1,45 +1,38 @@
 const url = 'https://gist.githubusercontent.com/josejbocanegra/9a28c356416badb8f9173daf36d1460b/raw/5ea84b9d43ff494fcbf5c5186544a18b42812f09/restaurant.json';
 let data
-let carrito = []
+let carrito = new Map();
+fetch(url).then(res =>res.json()).then(res=>{data = res})
 
-fetch(url).then(res =>res.json()).then(res=>{
-    data = res
-})
-
+const logoCarrito = document.getElementById("carrito");
+logoCarrito.addEventListener("click", function (event) {
+  event.preventDefault();
+  cargarOrden();
+});
 const menuBurgers = document.getElementById("burgers");
 menuBurgers.addEventListener("click", function (event) {
   event.preventDefault();
   cargarMenu("Burguers");
 });
-
 const menuTacos = document.getElementById("tacos");
 menuTacos.addEventListener("click", function (event) {
   event.preventDefault();
   cargarMenu("Tacos");
 });
-
 const menuSalads = document.getElementById("salads");
 menuSalads.addEventListener("click", function (event) {
   event.preventDefault();
   cargarMenu("Salads");
 });
-
 const menuDesserts = document.getElementById("desserts");
 menuDesserts.addEventListener("click", function (event) {
   event.preventDefault();
   cargarMenu("Desserts");
 });
-
 const menuDrinks = document.getElementById("drinks");
 menuDrinks.addEventListener("click", function (event) {
   event.preventDefault();
   cargarMenu("Drinks and Sides");
 });
-
-function actualizarItems(n) {
-  let texto = document.getElementById("carrito")
-  texto.innerHTML = n + " items"
-}
 
 function cargarMenu(item) {
   const contenido = document.getElementById("contenido");
@@ -51,12 +44,9 @@ function cargarMenu(item) {
   menu.appendChild(nodo)
   contenido.appendChild(menu)
   contenido.appendChild(hr)
-  let carddeck = document.createElement("div")
-  carddeck.className='card-deck'
-  contenido.appendChild(carddeck)
+  
   data.forEach(dato => {
     if(dato.name==item) {
-      let nodo = document.createTextNode(dato.name)
       let productos = dato.products
       productos.forEach(producto => {
         let card = document.createElement("div")
@@ -93,12 +83,175 @@ function cargarMenu(item) {
 
         boton.addEventListener("click", function (event) {
           event.preventDefault();
-          carrito.push(producto)
-          actualizarItems(carrito.length)
-        });
-        
+          if(carrito.get(producto)==undefined) {
+            carrito.set(producto,1)
+          }
+          else{
+            carrito.set(producto, carrito.get(producto)+1)
+          }
+          let sum = 0;
+          carrito.forEach((v) => {
+            sum += v;
+          });
+          actualizarItems(sum)
+        });  
       })      
     }
   })
 }
 
+function actualizarItems(n) {
+  let texto = document.getElementById("items")
+  texto.innerHTML = n + " items"
+}
+
+function cargarOrden(){
+  const contenido = document.getElementById("contenido");
+  contenido.innerHTML = ""
+  let menu = document.createElement("h1")
+  menu.className = 'subtitulo'
+  let hr = document.createElement("hr")
+  let nodo = document.createTextNode("Order detail")
+  menu.appendChild(nodo)
+  contenido.appendChild(menu)
+  contenido.appendChild(hr)
+  let tabla = document.createElement("table")
+  tabla.className = 'table table-striped'
+  let thead = document.createElement("thead")
+  let tbody = document.createElement("tbody")
+  let columnas = document.createElement("tr")
+  let it = document.createElement("th")
+  it.innerText = 'Item'
+  let qty = document.createElement("th")
+  qty.innerText = 'Qty.'
+  let desc = document.createElement("th")
+  desc.innerText = 'Description'
+  let unit = document.createElement("th")
+  unit.innerText = 'Unit Price'
+  let amount = document.createElement("th")
+  amount.innerText = 'Amount'
+  let modi = document.createElement("th")
+  modi.innerText = 'Modify'
+  columnas.appendChild(it)
+  columnas.appendChild(qty)
+  columnas.appendChild(desc)
+  columnas.appendChild(unit)
+  columnas.appendChild(amount)
+  columnas.appendChild(modi)
+  thead.appendChild(columnas)
+  tabla.appendChild(thead)
+  let x = 1
+  let tot = 0
+  
+  carrito.forEach((values,keys) => {
+    let tr = document.createElement('tr')
+    it = document.createElement("th")
+    it.innerText = x
+    qty = document.createElement('td')
+    qty.innerText = values
+    desc = document.createElement('td')
+    desc.innerText = keys.name
+    unit = document.createElement('td')
+    unit.innerText = keys.price
+    amount = document.createElement('td')
+    amount.innerText = keys.price*values
+    tot=tot+(keys.price*values)
+    botones = document.createElement('td')
+    let b1 = document.createElement('a')
+    b1.className = 'btn btn-dark'
+    b1.innerText = '+'
+    let b2 = document.createElement('a')
+    b2.className = 'btn btn-dark'
+    b2.innerText = '-'
+    
+    b1.addEventListener("click", function (event) {
+      event.preventDefault();
+      carrito.set(keys, carrito.get(keys)+1)
+      let sum = 0;
+          carrito.forEach((v) => {
+            sum += v;
+          });
+      actualizarItems(sum)
+      cargarOrden()
+    });
+    b2.addEventListener("click", function (event) {
+      event.preventDefault();
+      if(carrito.get(keys)==1) {
+        carrito.delete(keys)
+      }
+      else{
+        carrito.set(keys, carrito.get(keys)-1)
+      } 
+      let sum = 0;
+          carrito.forEach((v) => {
+            sum += v;
+          });
+      actualizarItems(sum)
+      cargarOrden()
+    });
+    
+    botones.appendChild(b1)
+    botones.appendChild(b2)
+    tr.appendChild(it)
+    tr.appendChild(qty)
+    tr.appendChild(desc)
+    tr.appendChild(unit)
+    tr.appendChild(amount)
+    tr.appendChild(botones)
+    tbody.appendChild(tr)
+  })
+  tabla.appendChild(tbody)
+  contenido.appendChild(tabla)
+  let abajo = document.createElement('div')
+  abajo.className='container'
+  let fila = document.createElement('div')
+  fila.className='row'
+  let total = document.createElement('div')
+  total.className='col totalCompra'
+  total.innerText='Total: $'+tot
+  let botts = document.createElement('div')
+  botts.className='col'
+  b1 = document.createElement('a')
+  b1.className = 'btn btn-danger botonesCompra'
+  b1.innerText = 'Cancel'
+  b2 = document.createElement('a')
+  b2.className = 'btn btn-light botonesCompra'
+  b2.innerText = 'Confirm order'
+
+  b1.addEventListener("click", function (event) {
+    event.preventDefault();
+    cargarConfirmacion()
+  });
+
+  b2.addEventListener("click", function (event) {
+    event.preventDefault();
+    pedidoConsola();
+    carrito = new Map();
+    cargarOrden();
+    actualizarItems(0);
+  });
+
+  botts.appendChild(b1)
+  botts.appendChild(b2)
+  fila.appendChild(total)
+  fila.appendChild(botts)
+  abajo.appendChild(fila)
+  contenido.appendChild(abajo)
+}
+
+function pedidoConsola(){
+  let obj = {item: 0, quantity: 0, description: "", unitPrice: 0}
+  let x=1
+  carrito.forEach((values,keys)=>{
+    obj.item = x
+    obj.quantity = values
+    obj.description = keys.name
+    obj.unitPrice = keys.price
+    x++
+    console.log(obj) 
+  })
+}
+
+function cargarConfirmacion(){
+
+}

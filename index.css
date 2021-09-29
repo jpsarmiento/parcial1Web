@@ -14,3 +14,12 @@
 .subtitulo{
     text-align: center;
 }
+
+.botonesCompra{
+    margin-right: 0;
+    margin-left:auto;
+}
+
+.totalCompra{
+    font-weight: bold;
+}
