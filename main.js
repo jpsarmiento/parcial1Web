@@ -3,6 +3,13 @@ let data
 let carrito = new Map();
 fetch(url).then(res =>res.json()).then(res=>{data = res})
 
+const cancelarOrden = document.getElementById("cancelOrder");
+cancelarOrden.addEventListener("click", function (event) {
+  event.preventDefault();
+  carrito = new Map();
+  cargarOrden();
+  actualizarItems(0);
+});
 const logoCarrito = document.getElementById("carrito");
 logoCarrito.addEventListener("click", function (event) {
   event.preventDefault();
@@ -154,7 +161,7 @@ function cargarOrden(){
     unit = document.createElement('td')
     unit.innerText = keys.price
     amount = document.createElement('td')
-    amount.innerText = keys.price*values
+    amount.innerText = (keys.price*values).toFixed(2)
     tot=tot+(keys.price*values)
     botones = document.createElement('td')
     let b1 = document.createElement('a')
@@ -208,7 +215,7 @@ function cargarOrden(){
   fila.className='row'
   let total = document.createElement('div')
   total.className='col totalCompra'
-  total.innerText='Total: $'+tot
+  total.innerText='Total: $'+tot.toFixed(2)
   let botts = document.createElement('div')
   botts.className='col'
   b1 = document.createElement('a')
@@ -218,10 +225,8 @@ function cargarOrden(){
   b2.className = 'btn btn-light botonesCompra'
   b2.innerText = 'Confirm order'
 
-  b1.addEventListener("click", function (event) {
-    event.preventDefault();
-    cargarConfirmacion()
-  });
+  b1.dataset.toggle = 'modal'
+  b1.dataset.target = '#mensajito'
 
   b2.addEventListener("click", function (event) {
     event.preventDefault();
@@ -230,7 +235,6 @@ function cargarOrden(){
     cargarOrden();
     actualizarItems(0);
   });
-
   botts.appendChild(b1)
   botts.appendChild(b2)
   fila.appendChild(total)
@@ -250,8 +254,4 @@ function pedidoConsola(){
     x++
     console.log(obj) 
   })
-}
-
-function cargarConfirmacion(){
-
 }
